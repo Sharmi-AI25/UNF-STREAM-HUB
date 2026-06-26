@@ -365,17 +365,32 @@
 
         if (window.Hls && Hls.isSupported()) {
             hls = new Hls({
+                // Buffering Optimization
+                liveSyncDurationCount: 3,    // Sync closer to live edge
+                maxBufferLength: 20,         // Keep buffer small (20 seconds)
+                maxMaxBufferLength: 30,      // Max buffer size
+                backBufferLength: 0,         // Discard past segments immediately
                 xhrSetup: (xhr) => {
                     xhr.setRequestHeader('User-Agent', 'Mozilla/5.0');
-                },
-                autoLevelEnabled: true,
-                startLevel: -1
+                }
             });
             hls.loadSource(url);
             hls.attachMedia(vid);
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                hls.currentLevel = hls.levels.length - 1;
                 vid.play();
+            });
+            // Handle errors more gracefully
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            hls.startLoad(); // Try to recover
+                            break;
+                        default:
+                            hls.destroy();
+                            break;
+                    }
+                }
             });
         } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
             vid.src = url;
