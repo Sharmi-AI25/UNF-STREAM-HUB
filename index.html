@@ -76,6 +76,13 @@
         vid.play();
         document.getElementById('status-text').innerText = name;
     }
+    .card.active {
+    border-color: var(--mint) !important;
+    background: #1a2a3a !important;
+    box-shadow: 0 0 15px rgba(0, 255, 102, 0.3);
+    transform: scale(1.02);
+    transition: all 0.2s ease;
+    }
 
     function applyFilter() { vid.style.filter = `saturate(${s[0].value}%) contrast(${s[1].value}%) blur(${s[2].value/50}px)`; }
     function togglePanel() { const p = document.getElementById('adjust-panel'); p.style.display = (p.style.display === 'block') ? 'none' : 'block'; }
