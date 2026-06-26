@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -16,7 +16,6 @@
             background: #0b0c10 url('https://your-custom-background-image-url.jpg') no-repeat center center fixed;
             background-size: cover;
         }
-        /* Fallback if image fails */
         .bg-overlay {
             position: fixed;
             top:0; left:0; width:100%; height:100%;
@@ -91,7 +90,9 @@
             border: 2px solid #333;
             background: #0b0c10;
             color: #fff;
-            font-size: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 8px;
             outline: none;
             transition: 0.3s;
         }
@@ -127,8 +128,8 @@
     <div class="login-box">
         <div class="login-logo"></div>
         <h1>UNF</h1>
-        <p>United NTLA of Flario<br><span style="color:#667;font-size:0.8rem;">Enter the nation's passcode</span></p>
-        <input type="password" id="password-input" placeholder="Enter 4-digit passcode..." maxlength="4" inputmode="numeric" autofocus>
+        <p>United NTLA of Flario<br><span style="color:#667;font-size:0.8rem;">Enter 4-digit nation passcode</span></p>
+        <input type="password" id="password-input" placeholder="****" maxlength="4" inputmode="numeric" autofocus>
         <button onclick="checkPassword()">🔓 Enter UNF</button>
         <div id="login-error">❌ Incorrect passcode!</div>
         <div class="login-footer">🇺🇳 For citizens of Flario only</div>
@@ -163,11 +164,11 @@
 </div>
 
 <script>
-    // ===== PASSWORD CHECK =====
+    // ===== 4-DIGIT PASSCODE CHECK =====
     function checkPassword() {
         const pass = document.getElementById('password-input').value;
-        // 🔑 CHANGE THIS PASSWORD to whatever you want
-        if (pass === 'flario2026') {
+        // 🔑 CHANGE '1234' to your 4-digit passcode
+        if (pass === '1234') {
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
             document.getElementById('login-error').style.display = 'none';
@@ -177,6 +178,14 @@
             document.getElementById('password-input').focus();
         }
     }
+
+    // Auto-submit when 4 digits entered
+    document.getElementById('password-input').addEventListener('input', function() {
+        if (this.value.length === 4) {
+            checkPassword();
+        }
+    });
+
     // Enter key support
     document.getElementById('password-input').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') checkPassword();
