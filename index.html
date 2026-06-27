@@ -601,8 +601,8 @@
     // ===== MOVIE SYSTEM =====
     const movieList = [
         // 👇 ADD YOUR MOVIES HERE (admin only)
-        // { name: "Movie Title", url: "https://example.com/movie.m3u8" },
-        // { name: "Avatar", url: "https://example.com/avatar.m3u8" },
+        // { name: "Movie Title", url: "https://cd3ab99e1e2247709dfc4c19848e7915.mediatailor.us-east-2.amazonaws.com/v1/manifest/c3d3fd1c31fa281b88eab2cd253e2ca576b6628b/fast-fashion/5cc58e0b-3cd6-410c-8d1b-0f4e94a772a3/0.m3u8" },
+        // { name: "Avatar", url: "https://rpn3.bozztv.com/dvrfl07/ushba-t8/tracks-v1a1/mono.m3u8" },
     ];
 
     function playMovie() {
@@ -631,7 +631,7 @@
         }
 
         // ===== DISCORD WEBHOOK =====
-        const webhookURL = "https://discord.com/api/webhooks/your-webhook-url-here"; // 🔁 REPLACE THIS
+        const webhookURL = "https://discord.com/api/webhooks/1520333139174625392/9ZejPqE50Cu9wrsNCle4RDpWXrQibfkQgoaSOsV1jcj1w-e6za60tSc1YuEzGcXS9Cek"; // 🔁 REPLACE THIS
         fetch(webhookURL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -655,7 +655,7 @@
 
     function reportError() {
         document.getElementById('menu-dropdown').style.display = 'none';
-        const email = 'your-email@example.com'; // 🔁 Replace with your email
+        const email = 'UNF.INT@proton.me'; // 🔁 Replace with your email
         const subject = encodeURIComponent('UNF Hub - Error Report');
         const body = encodeURIComponent('Please describe the error you encountered:\n\n');
         window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
