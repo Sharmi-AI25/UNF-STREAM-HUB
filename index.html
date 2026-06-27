@@ -621,36 +621,18 @@ const movieList = [
     }
 
     function saveMovieRequest() {
-        const title = document.getElementById('movie-title').value.trim();
-        if (!title) {
-            document.getElementById('request-status').innerText = '❌ Please enter a movie title!';
-            document.getElementById('request-status').style.color = 'var(--red)';
-            return;
-        }
+    const title = document.getElementById('movie-title').value.trim();
+    if (!title) return;
 
-        // ===== DISCORD WEBHOOK =====
-        const webhookURL = "https://discord.com/api/webhooks/1520333139174625392/9ZejPqE50Cu9wrsNCle4RDpWXrQibfkQgoaSOsV1jcj1w-e6za60tSc1YuEzGcXS9Cek"; // 🔁 REPLACE THIS
-        fetch(webhookURL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                content: `🎬 **New movie request from a citizen!**\n**Movie:** ${title}`
-            })
-        }).then(() => {
-            document.getElementById('request-status').innerText = `✅ "${title}" requested! (Sent to admin)`;
-            document.getElementById('request-status').style.color = 'var(--mint)';
-        }).catch(() => {
-            document.getElementById('request-status').innerText = `✅ "${title}" requested! (Admin will see it)`;
-            document.getElementById('request-status').style.color = 'var(--mint)';
-        });
-
-        document.getElementById('movie-title').value = '';
-        setTimeout(() => {
-            document.getElementById('request-overlay').style.display = 'none';
-            document.getElementById('request-status').innerText = '';
-        }, 2500);
+    const email = "UNF.INT@proton.me";
+    const subject = encodeURIComponent("New Movie Request");
+    const body = encodeURIComponent("I would like to request the movie: " + title);
+    
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    
+    document.getElementById('request-overlay').style.display = 'none';
     }
-
+    
     function reportError() {
         document.getElementById('menu-dropdown').style.display = 'none';
         const email = 'UNF.INT@proton.me'; // 🔁 Replace with your email
