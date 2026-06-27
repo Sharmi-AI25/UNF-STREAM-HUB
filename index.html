@@ -356,70 +356,53 @@
     }
 
     
-        function playHls(url, name) {
-        if (hls) {
-            hls.destroy();
-            hls = null;
-        }
-        if (tsnTimer) {
-            clearInterval(tsnTimer);
-            tsnTimer = null;
-        }
+ function playHls(url, name) {
+    if (hls) { hls.destroy(); hls = null; }
+    if (tsnTimer) { clearInterval(tsnTimer); tsnTimer = null; }
 
-        if (window.Hls && Hls.isSupported()) {
-            hls = new Hls({
-                maxBufferLength: 60,
-                backBufferLength: 10,
-                xhrSetup: (xhr) => { xhr.setRequestHeader('User-Agent', 'Mozilla/5.0'); }
-            });
-            hls.loadSource(url);
+    if (window.Hls && Hls.isSupported()) {
+        hls = new Hls({
+            maxBufferLength: 60,
+            backBufferLength: 10,
+            xhrSetup: (xhr) => xhr.setRequestHeader('User-Agent', 'Mozilla/5.0')
+        });
+        hls.loadSource(url);
+        hls.attachMedia(vid);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => vid.play());
+        hls.on(Hls.Events.ERROR, (e, d) => {
+            if (d.fatal && d.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
+        });
+    } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
+        vid.src = url;
+        vid.play();
+    }
+
+    // ===== D SPORTS ROTATION (only for D SPORTS) =====
+    if (name === "D SPORTS") {
+        const links = [
+            "https://1nyaler.streamhostingcdn.top/stream/106/index.m3u8",
+            "https://ftv1.b-cdn.net/bfdb5b76-83f7-11f0-9f89-0200170e3e04_1000028043_HLS/video_10801920_p_0.m3u8"
+        ];
+        let index = 0;
+
+        // Load first link
+        if (hls) {
+            hls.loadSource(links[0]);
             hls.attachMedia(vid);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                vid.play();
-            });
-            hls.on(Hls.Events.ERROR, function (event, data) {
-                if (data.fatal) {
-                    switch (data.type) {
-                        case Hls.ErrorTypes.NETWORK_ERROR:
-                            hls.startLoad();
-                            break;
-                        default:
-                            hls.destroy();
-                            break;
-                    }
-                }
-            });
-        } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
-            vid.src = url;
             vid.play();
         }
 
-        // ===== D SPORTS ROTATION (only for D SPORTS) =====
-        if (name === "D SPORTS") {
-            const links = [
-                "https://1nyaler.streamhostingcdn.top/stream/106/index.m3u8",
-                "https://ftv1.b-cdn.net/bfdb5b76-83f7-11f0-9f89-0200170e3e04_1000028043_HLS/video_10801920_p_0.m3u8"
-            ];
-            const interval = 180000; // 3 minutes
-
-            // Load first link immediately
+        // Rotate every 3 minutes
+        tsnTimer = setInterval(() => {
+            index = (index + 1) % links.length;
             if (hls) {
-                hls.loadSource(links[0]);
+                hls.loadSource(links[index]);
                 hls.attachMedia(vid);
                 vid.play();
             }
-
-            // Rotate every 3 minutes
-            tsnTimer = setInterval(() => {
-                const activeIndex = Math.floor(Date.now() / interval) % links.length;
-                if (hls) {
-                    hls.loadSource(links[activeIndex]);
-                    hls.attachMedia(vid);
-                    vid.play();
-                }
-            }, interval);
-        }
+        }, 180000); // 3 minutes
     }
+}
  
 
     // ===== CHANNELS =====
