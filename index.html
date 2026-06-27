@@ -389,7 +389,7 @@
 
     <!-- MENU DROPDOWN -->
     <div id="menu-dropdown">
-        <div onclick="openMoviePlayer()">🎬 Movie Player</div>
+        <div onclick="playMovie()">🎬 Movie Player</div>
         <div onclick="openRequestMovie()">🎞️ Request Movie</div>
         <div onclick="reportError()">🚨 Report Error</div>
     </div>
@@ -430,9 +430,8 @@
 <div id="request-overlay">
     <div class="request-box">
         <h2>🎞️ Request a Movie</h2>
-        <p>Enter movie name and stream URL (.m3u8)</p>
+        <p>Enter the name of the movie you want to watch</p>
         <input id="movie-title" type="text" placeholder="Movie Title">
-        <input id="movie-url" type="text" placeholder="Movie Stream URL (.m3u8)">
         <button onclick="saveMovieRequest()">✅ Request Movie</button>
         <button class="cancel-btn" onclick="document.getElementById('request-overlay').style.display='none'">Cancel</button>
         <div id="request-status"></div>
@@ -599,29 +598,23 @@
         menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
     }
 
-    function openMoviePlayer() {
+    // ===== MOVIE SYSTEM =====
+    const movieList = [
+        // 👇 ADD YOUR MOVIES HERE (admin only)
+        // { name: "Movie Title", url: "https://example.com/movie.m3u8" },
+        // { name: "Avatar", url: "https://example.com/avatar.m3u8" },
+    ];
+
+    function playMovie() {
         document.getElementById('menu-dropdown').style.display = 'none';
-        const requested = localStorage.getItem('unf_movie');
-        if (!requested) {
-            alert("🎬 No movie requested yet. Go to 'Request Movie' first!");
+        if (movieList.length === 0) {
+            alert("🎬 No movie has been added by the admin yet. Check back later!");
             return;
         }
-        const data = JSON.parse(requested);
-        const now = Date.now();
-        const waitTime = 3 * 24 * 60 * 60 * 1000; // 3 days
-        const timeLeft = (data.timestamp + waitTime) - now;
-
-        if (timeLeft <= 0) {
-            // Movie is ready
-            if (hls) { hls.destroy(); hls = null; }
-            document.getElementById('status-text').innerText = `🎬 ${data.title}`;
-            playHls(data.url, data.title);
-        } else {
-            // Show countdown
-            const days = Math.floor(timeLeft / (24 * 60 * 60 * 1000));
-            const hours = Math.floor((timeLeft % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-            alert(`🎬 "${data.title}" will be ready in ${days} days and ${hours} hours! Please wait.`);
-        }
+        // Play the first movie in the list (or you can let users choose later)
+        const movie = movieList[0];
+        document.getElementById('status-text').innerText = `🎬 ${movie.name}`;
+        playHls(movie.url, movie.name);
     }
 
     function openRequestMovie() {
@@ -631,26 +624,33 @@
 
     function saveMovieRequest() {
         const title = document.getElementById('movie-title').value.trim();
-        const url = document.getElementById('movie-url').value.trim();
-        if (!title || !url) {
-            document.getElementById('request-status').innerText = '❌ Please fill in both fields!';
+        if (!title) {
+            document.getElementById('request-status').innerText = '❌ Please enter a movie title!';
             document.getElementById('request-status').style.color = 'var(--red)';
             return;
         }
-        const data = {
-            title: title,
-            url: url,
-            timestamp: Date.now()
-        };
-        localStorage.setItem('unf_movie', JSON.stringify(data));
-        document.getElementById('request-status').innerText = `✅ "${title}" requested! Ready in 3 days.`;
-        document.getElementById('request-status').style.color = 'var(--mint)';
+
+        // ===== DISCORD WEBHOOK =====
+        const webhookURL = "https://discord.com/api/webhooks/your-webhook-url-here"; // 🔁 REPLACE THIS
+        fetch(webhookURL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                content: `🎬 **New movie request from a citizen!**\n**Movie:** ${title}`
+            })
+        }).then(() => {
+            document.getElementById('request-status').innerText = `✅ "${title}" requested! (Sent to admin)`;
+            document.getElementById('request-status').style.color = 'var(--mint)';
+        }).catch(() => {
+            document.getElementById('request-status').innerText = `✅ "${title}" requested! (Admin will see it)`;
+            document.getElementById('request-status').style.color = 'var(--mint)';
+        });
+
         document.getElementById('movie-title').value = '';
-        document.getElementById('movie-url').value = '';
         setTimeout(() => {
             document.getElementById('request-overlay').style.display = 'none';
             document.getElementById('request-status').innerText = '';
-        }, 3000);
+        }, 2500);
     }
 
     function reportError() {
