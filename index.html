@@ -491,10 +491,10 @@
         }
 
         if (window.Hls && Hls.isSupported()) {
-            hls = new Hls({
-                maxBufferLength: 60,
-                backBufferLength: 10,
-                xhrSetup: (xhr) => { xhr.setRequestHeader('User-Agent', 'Mozilla/5.0'); }
+       hls = new Hls({
+            maxBufferLength: 120, 
+            backBufferLength: 10,
+            xhrSetup: (xhr) => { xhr.setRequestHeader('User-Agent', 'Mozilla/5.0'); }
             });
             hls.loadSource(url);
             hls.attachMedia(vid);
