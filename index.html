@@ -497,6 +497,14 @@
             });
             hls.loadSource(url);
             hls.attachMedia(vid);
+            
+            // ===== AUTOPLAY FIX =====
+            vid.muted = true;
+            vid.play();
+            setTimeout(() => {
+                vid.muted = false;
+            }, 500);
+
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
                 vid.play();
             });
@@ -534,7 +542,6 @@
             }, 5000);
         }
     }
-
     // ===== CHANNELS =====
     const channels = [
         { name: "T SPORTS", url: "https://tv.emnetbd.com/flussonic/Tsports1/tracks-v1a1/mono.m3u8", lang: "BAN/ENG", status: "online" },
