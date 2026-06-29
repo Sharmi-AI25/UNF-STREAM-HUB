@@ -479,7 +479,8 @@
         document.getElementById('vol-icon').className = vid.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-up';
     }
 
-        function playHls(url, name) {
+    // ===== UPDATED playHls WITH AUTOPLAY FIX =====
+    function playHls(url, name) {
         if (hls) {
             hls.destroy();
             hls = null;
@@ -498,32 +499,25 @@
             hls.loadSource(url);
             hls.attachMedia(vid);
 
-            // ===== FORCE PLAY ON MOBILE (Mute + Click Trick) =====
+            // ===== FORCE PLAY ON EVERY CHANNEL SWITCH =====
             vid.muted = true;
-            
-            // Try to play immediately
             const playPromise = vid.play();
-
             if (playPromise !== undefined) {
                 playPromise
                     .then(() => {
-                        // Success: Unmute after 400ms
                         setTimeout(() => {
                             vid.muted = false;
-                        }, 400);
+                        }, 300);
                     })
                     .catch(() => {
-                        // If blocked, use the "invisible click" trick
-                        // This fakes a user tap on the video itself
+                        // Fallback: fake a click on the video
                         const fakeClick = new Event('click');
                         vid.dispatchEvent(fakeClick);
-                        
-                        // Try playing again after the fake click
                         setTimeout(() => {
                             vid.play().then(() => {
                                 setTimeout(() => {
                                     vid.muted = false;
-                                }, 400);
+                                }, 300);
                             });
                         }, 100);
                     });
@@ -532,7 +526,6 @@
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
                 vid.play();
             });
-            
             hls.on(Hls.Events.ERROR, function (event, data) {
                 if (data.fatal) {
                     switch (data.type) {
@@ -567,6 +560,7 @@
             }, 5000);
         }
     }
+
     // ===== CHANNELS =====
     const channels = [
         { name: "T SPORTS", url: "https://tv.emnetbd.com/flussonic/Tsports1/tracks-v1a1/mono.m3u8", lang: "BAN/ENG", status: "online" },
