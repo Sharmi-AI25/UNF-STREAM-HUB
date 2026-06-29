@@ -479,7 +479,7 @@
         document.getElementById('vol-icon').className = vid.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-up';
     }
 
-    function playHls(url, name) {
+        function playHls(url, name) {
         if (hls) {
             hls.destroy();
             hls = null;
@@ -498,29 +498,41 @@
             hls.loadSource(url);
             hls.attachMedia(vid);
 
-            // ===== FORCE PLAY ON EVERY CHANNEL SWITCH =====
+            // ===== FORCE PLAY ON MOBILE (Mute + Click Trick) =====
             vid.muted = true;
+            
+            // Try to play immediately
             const playPromise = vid.play();
+
             if (playPromise !== undefined) {
                 playPromise
                     .then(() => {
-                        // Unmute after 300ms
+                        // Success: Unmute after 400ms
                         setTimeout(() => {
                             vid.muted = false;
-                        }, 300);
+                        }, 400);
                     })
                     .catch(() => {
-                        // If play fails, force it with a user gesture simulation
-                        document.addEventListener('click', function forcePlayOnce() {
-                            vid.play();
-                            document.removeEventListener('click', forcePlayOnce);
-                        }, { once: true });
+                        // If blocked, use the "invisible click" trick
+                        // This fakes a user tap on the video itself
+                        const fakeClick = new Event('click');
+                        vid.dispatchEvent(fakeClick);
+                        
+                        // Try playing again after the fake click
+                        setTimeout(() => {
+                            vid.play().then(() => {
+                                setTimeout(() => {
+                                    vid.muted = false;
+                                }, 400);
+                            });
+                        }, 100);
                     });
             }
 
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
                 vid.play();
             });
+            
             hls.on(Hls.Events.ERROR, function (event, data) {
                 if (data.fatal) {
                     switch (data.type) {
