@@ -497,13 +497,26 @@
             });
             hls.loadSource(url);
             hls.attachMedia(vid);
-            
-            // ===== AUTOPLAY FIX =====
+
+            // ===== FORCE PLAY ON EVERY CHANNEL SWITCH =====
             vid.muted = true;
-            vid.play();
-            setTimeout(() => {
-                vid.muted = false;
-            }, 500);
+            const playPromise = vid.play();
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        // Unmute after 300ms
+                        setTimeout(() => {
+                            vid.muted = false;
+                        }, 300);
+                    })
+                    .catch(() => {
+                        // If play fails, force it with a user gesture simulation
+                        document.addEventListener('click', function forcePlayOnce() {
+                            vid.play();
+                            document.removeEventListener('click', forcePlayOnce);
+                        }, { once: true });
+                    });
+            }
 
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
                 vid.play();
